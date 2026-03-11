@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #0d1117;
+  --bg-card: #131a27;
+  --green: #00ff88;
+  --red: #ff4444;
+  --yellow: #ffaa00;
+  --blue: #0052ff;
+  --purple: #9945ff;
+  --gold: #f0b90b;
+}
+
+body {
+  background: var(--bg-primary);
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #1a2332;
+  border-radius: 3px;
+}
+
+/* Glow animations */
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.6); }
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(255, 68, 68, 0.6); }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.glow-green { animation: pulse-green 2s infinite; }
+.glow-red { animation: pulse-red 2s infinite; }
+
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  animation: scan-line 3s linear infinite;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 50;
+}
