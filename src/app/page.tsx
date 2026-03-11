@@ -1,78 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Header from "@/components/Header";
 import StatsBar from "@/components/StatsBar";
-import SearchBar from "@/components/SearchBar";
+import ScanInput from "@/components/ScanInput";
 import LiveFeed from "@/components/LiveFeed";
 import TokenCard from "@/components/TokenCard";
-import ScanInput from "@/components/ScanInput";
-import { TokenAnalysis, Chain, ScanStats } from "@/types/token";
-import { Loader2 } from "lucide-react";
+import WalletScanner from "@/components/WalletScanner";
+import Leaderboard from "@/components/Leaderboard";
+import NewTokens from "@/components/NewTokens";
+import { TokenAnalysis, ScanStats } from "@/types/token";
+import { Radar, Zap, Trophy, Wallet, Search } from "lucide-react";
+
+type Tab = "scan" | "new" | "leaderboard" | "wallet";
 
 export default function Home() {
-  const [tokens, setTokens] = useState<TokenAnalysis[]>([]);
-  const [search, setSearch] = useState("");
-  const [chain, setChain] = useState<Chain | "all">("all");
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<ScanStats>({
-    totalScanned: 0,
-    rugsDetected: 0,
-    safeTokens: 0,
+  const [activeTab, setActiveTab] = useState<Tab>("new");
+  const [scannedTokens, setScannedTokens] = useState<TokenAnalysis[]>([]);
+  const [stats] = useState<ScanStats>({
+    totalScanned: 12847,
+    rugsDetected: 4231,
+    safeTokens: 3102,
     activeChains: 3,
   });
 
-  const fetchTrending = useCallback(async () => {
-    try {
-      const res = await fetch("/api/trending");
-      const data = await res.json();
-
-      if (data.tokens && data.tokens.length > 0) {
-        setTokens(data.tokens);
-        updateStats(data.tokens);
-      }
-    } catch (error) {
-      console.error("Failed to fetch trending:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTrending();
-    // Refresh every 60 seconds
-    const interval = setInterval(fetchTrending, 60000);
-    return () => clearInterval(interval);
-  }, [fetchTrending]);
-
-  const updateStats = (tokenList: TokenAnalysis[]) => {
-    setStats({
-      totalScanned: tokenList.length,
-      rugsDetected: tokenList.filter((t) => t.riskLevel === "critical" || t.riskLevel === "danger").length,
-      safeTokens: tokenList.filter((t) => t.riskLevel === "safe").length,
-      activeChains: new Set(tokenList.map((t) => t.chain)).size,
-    });
-  };
-
   const handleScanResult = (token: TokenAnalysis) => {
-    setTokens((prev) => {
-      // Remove duplicate if exists
-      const filtered = prev.filter((t) => t.address.toLowerCase() !== token.address.toLowerCase());
-      const updated = [token, ...filtered];
-      updateStats(updated);
-      return updated;
+    setScannedTokens((prev) => {
+      const filtered = prev.filter(
+        (t) => t.address.toLowerCase() !== token.address.toLowerCase()
+      );
+      return [token, ...filtered];
     });
+    setActiveTab("scan");
   };
 
-  const filtered = tokens.filter((t) => {
-    const matchesChain = chain === "all" || t.chain === chain;
-    const matchesSearch =
-      !search ||
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.symbol.toLowerCase().includes(search.toLowerCase()) ||
-      t.address.toLowerCase().includes(search.toLowerCase());
-    return matchesChain && matchesSearch;
-  });
+  const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
+    { key: "new", label: "New Tokens", icon: Zap },
+    { key: "scan", label: "Scan", icon: Search },
+    { key: "leaderboard", label: "Leaderboard", icon: Trophy },
+    { key: "wallet", label: "Wallet", icon: Wallet },
+  ];
 
   return (
     <div className="min-h-screen">
@@ -81,40 +48,62 @@ export default function Home() {
         <StatsBar stats={stats} />
         <ScanInput onResult={handleScanResult} />
         <LiveFeed />
-        <SearchBar onSearch={setSearch} onFilterChain={setChain} activeChain={chain} />
 
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm text-gray-500 tracking-wider">
-            {loading ? "SCANNING CHAINS..." : (
-              <>TRENDING TOKENS — <span className="text-white">{filtered.length} found</span></>
-            )}
-          </h2>
-          <div className="flex gap-2 text-[10px]">
-            <span className="text-[#ff4444]">● CRITICAL</span>
-            <span className="text-[#ffaa00]">● WARNING</span>
-            <span className="text-[#00ff88]">● SAFE</span>
-          </div>
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-[#1a2332] pb-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                activeTab === tab.key
+                  ? "bg-[#131a27] text-[#00ff88] border border-[#00ff88]/30"
+                  : "text-gray-500 hover:text-gray-300 border border-transparent"
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+              {tab.key === "scan" && scannedTokens.length > 0 && (
+                <span className="bg-[#00ff88] text-[#0a0a1a] text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                  {scannedTokens.length}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-[#00ff88] animate-spin" />
-            <span className="ml-3 text-gray-500">Scanning chains for new tokens...</span>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {filtered.map((token) => (
-              <TokenCard key={`${token.chain}-${token.address}`} token={token} />
-            ))}
+        {/* Tab Content */}
+        {activeTab === "new" && <NewTokens />}
+
+        {activeTab === "scan" && (
+          <div>
+            {scannedTokens.length > 0 ? (
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <Radar className="w-4 h-4 text-[#00ff88]" />
+                  <h2 className="text-sm text-gray-500 tracking-wider">
+                    SCAN RESULTS — <span className="text-white">{scannedTokens.length} tokens</span>
+                  </h2>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {scannedTokens.map((token) => (
+                    <TokenCard key={`scan-${token.chain}-${token.address}`} token={token} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-20 text-gray-600">
+                <Radar className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">No scans yet</p>
+                <p className="text-sm mt-2">Paste a contract address above to start scanning</p>
+              </div>
+            )}
           </div>
         )}
 
-        {!loading && filtered.length === 0 && (
-          <div className="text-center py-20 text-gray-600">
-            <p className="text-lg">No tokens found</p>
-            <p className="text-sm mt-2">Try scanning a contract address above</p>
-          </div>
-        )}
+        {activeTab === "leaderboard" && <Leaderboard />}
+
+        {activeTab === "wallet" && <WalletScanner />}
 
         <footer className="mt-16 pt-8 border-t border-[#1a2332] text-center text-xs text-gray-600">
           <p className="mb-2">
