@@ -1,24 +1,49 @@
 "use client";
 
-import { Shield, Radio } from "lucide-react";
+import { Shield, Radio, ArrowRightLeft } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+  const pathname = usePathname();
+
   return (
     <header className="border-b border-[#1a2332] bg-[#0d1117]/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Radio className="w-8 h-8 text-[#00ff88]" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#00ff88] rounded-full animate-ping" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#00ff88] rounded-full" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-[#00ff88] tracking-wider">RUGRADAR</h1>
-            <p className="text-[10px] text-gray-500 tracking-[0.3em]">SCAN BEFORE YOU APE</p>
-          </div>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="relative">
+              <Radio className="w-8 h-8 text-[#00ff88]" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#00ff88] rounded-full animate-ping" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#00ff88] rounded-full" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-[#00ff88] tracking-wider">RUGRADAR</h1>
+              <p className="text-[10px] text-gray-500 tracking-[0.3em]">SCAN BEFORE YOU APE</p>
+            </div>
+          </Link>
+          <nav className="hidden md:flex items-center gap-1">
+            <Link
+              href="/"
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
+                pathname === "/" ? "text-[#00ff88] bg-[#00ff88]/10" : "text-gray-500 hover:text-gray-300"
+              }`}
+            >
+              Scanner
+            </Link>
+            <Link
+              href="/trade"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
+                pathname === "/trade" ? "text-[#00ff88] bg-[#00ff88]/10" : "text-gray-500 hover:text-gray-300"
+              }`}
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              Trade
+            </Link>
+          </nav>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex gap-2">
+          <div className="hidden sm:flex gap-2">
             <span className="px-3 py-1 rounded-full border border-[#0052ff] text-[#0052ff] text-xs font-bold">BASE</span>
             <span className="px-3 py-1 rounded-full border border-[#f0b90b] text-[#f0b90b] text-xs font-bold">BSC</span>
             <span className="px-3 py-1 rounded-full border border-[#9945ff] text-[#9945ff] text-xs font-bold">SOL</span>
@@ -28,6 +53,13 @@ export default function Header() {
             <span>LIVE</span>
             <span className="w-2 h-2 bg-[#00ff88] rounded-full animate-pulse" />
           </div>
+          <Link
+            href="/trade"
+            className="md:hidden flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-[#00ff88] bg-[#00ff88]/10 border border-[#00ff88]/30"
+          >
+            <ArrowRightLeft className="w-3 h-3" />
+            Trade
+          </Link>
         </div>
       </div>
     </header>

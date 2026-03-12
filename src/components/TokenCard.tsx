@@ -2,7 +2,7 @@
 
 import { TokenAnalysis } from "@/types/token";
 import RiskBadge from "./RiskBadge";
-import { AlertTriangle, CheckCircle, ExternalLink, Users, Droplets, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle, ExternalLink, Users, Droplets, Clock, ArrowRightLeft } from "lucide-react";
 
 const chainColors: Record<string, string> = {
   base: "text-[#0052ff] border-[#0052ff]",
@@ -74,6 +74,28 @@ export default function TokenCard({ token }: { token: TokenAnalysis }) {
         <QuickCheck label={`Top ${token.topHolderPercent}%`} ok={token.topHolderPercent < 20} />
       </div>
 
+      {/* Trade Button */}
+      <div className="flex gap-2 mb-4">
+        <a
+          href={getTradeUrl(token)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-4 py-2 bg-[#00ff88]/10 hover:bg-[#00ff88]/20 border border-[#00ff88]/30 text-[#00ff88] font-bold text-xs rounded-lg transition-colors"
+        >
+          <ArrowRightLeft className="w-3.5 h-3.5" />
+          Trade on {getDexName(token.chain)}
+        </a>
+        <a
+          href={getDexScreenerUrl(token)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-4 py-2 bg-[#1a2332] hover:bg-[#222d3d] border border-[#2a3442] text-gray-400 text-xs rounded-lg transition-colors"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Chart
+        </a>
+      </div>
+
       {/* Risks & Positives */}
       {token.risks.length > 0 && (
         <div className="mb-3">
@@ -97,6 +119,32 @@ export default function TokenCard({ token }: { token: TokenAnalysis }) {
       )}
     </div>
   );
+}
+
+function getTradeUrl(token: TokenAnalysis): string {
+  switch (token.chain) {
+    case "solana":
+      return `https://jup.ag/swap/SOL-${token.address}`;
+    case "base":
+      return `https://app.uniswap.org/swap?chain=base&outputCurrency=${token.address}`;
+    case "bsc":
+      return `https://pancakeswap.finance/swap?outputCurrency=${token.address}`;
+    default:
+      return "#";
+  }
+}
+
+function getDexName(chain: string): string {
+  switch (chain) {
+    case "solana": return "Jupiter";
+    case "base": return "Uniswap";
+    case "bsc": return "PancakeSwap";
+    default: return "DEX";
+  }
+}
+
+function getDexScreenerUrl(token: TokenAnalysis): string {
+  return `https://dexscreener.com/${token.chain}/${token.address}`;
 }
 
 function QuickCheck({ label, ok }: { label: string; ok: boolean }) {
