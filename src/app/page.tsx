@@ -10,7 +10,7 @@ import WalletScanner from "@/components/WalletScanner";
 import Leaderboard from "@/components/Leaderboard";
 import NewTokens from "@/components/NewTokens";
 import { TokenAnalysis, ScanStats } from "@/types/token";
-import { Radar, Zap, Trophy, Wallet, Search } from "lucide-react";
+import { Radar, Zap, Trophy, Wallet, Search, Shield, Bot, Bell, ExternalLink } from "lucide-react";
 
 type Tab = "scan" | "new" | "leaderboard" | "wallet";
 
@@ -45,9 +45,62 @@ export default function Home() {
     <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-12 pt-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00ff88]/20 bg-[#00ff88]/5 mb-6">
+            <span className="w-2 h-2 bg-[#00ff88] rounded-full animate-pulse" />
+            <span className="text-xs text-[#00ff88] font-bold tracking-wider">SCANNING 3 CHAINS IN REAL-TIME</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+            Don&apos;t Get <span className="text-[#ff4444] line-through decoration-2">Rugged</span>
+          </h2>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+            AI-powered security scanner for meme tokens. Paste any contract address — get instant honeypot detection, LP analysis, tax check, and risk score.
+          </p>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <a
+              href="https://t.me/RugRadarAI_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold rounded-lg transition-colors text-sm"
+            >
+              <Bot className="w-4 h-4" />
+              Telegram Bot
+            </a>
+            <a
+              href="https://x.com/0xrugradar"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#1a2332] hover:bg-[#222d3d] text-white font-bold rounded-lg border border-[#2a3442] transition-colors text-sm"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Follow @0xrugradar
+            </a>
+          </div>
+        </div>
+
         <StatsBar stats={stats} />
         <ScanInput onResult={handleScanResult} />
         <LiveFeed />
+
+        {/* Features */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          <div className="bg-[#131a27] border border-[#1a2332] rounded-xl p-5 hover:border-[#00ff88]/20 transition-colors">
+            <Shield className="w-8 h-8 text-[#00ff88] mb-3" />
+            <h3 className="text-white font-bold mb-2">Honeypot Detection</h3>
+            <p className="text-sm text-gray-500">Instantly detect if a token is a honeypot. Check LP locks, ownership, mintability, and hidden traps.</p>
+          </div>
+          <div className="bg-[#131a27] border border-[#1a2332] rounded-xl p-5 hover:border-[#00ff88]/20 transition-colors">
+            <Zap className="w-8 h-8 text-[#ffaa00] mb-3" />
+            <h3 className="text-white font-bold mb-2">Real-Time Monitoring</h3>
+            <p className="text-sm text-gray-500">New tokens scanned automatically every 30 seconds. Never miss a launch — or a scam.</p>
+          </div>
+          <div className="bg-[#131a27] border border-[#1a2332] rounded-xl p-5 hover:border-[#00ff88]/20 transition-colors">
+            <Bell className="w-8 h-8 text-[#0088cc] mb-3" />
+            <h3 className="text-white font-bold mb-2">Telegram Alerts</h3>
+            <p className="text-sm text-gray-500">Get instant alerts when dangerous tokens are detected. Scan any token directly from the bot.</p>
+          </div>
+        </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b border-[#1a2332] pb-4">
@@ -105,12 +158,38 @@ export default function Home() {
 
         {activeTab === "wallet" && <WalletScanner />}
 
-        <footer className="mt-16 pt-8 border-t border-[#1a2332] text-center text-xs text-gray-600">
-          <p className="mb-2">
-            <span className="text-[#00ff88]">RugRadar</span> — AI-Powered Meme Token Scanner
-          </p>
-          <p>Base • BSC • Solana | Scan Before You Ape 🔍</p>
-          <p className="mt-2 text-gray-700">Data from DexScreener + GoPlus Security</p>
+        {/* CTA Banner */}
+        <div className="mt-12 bg-gradient-to-r from-[#00ff88]/10 to-[#0088cc]/10 border border-[#00ff88]/20 rounded-xl p-8 text-center">
+          <h3 className="text-2xl font-bold text-white mb-3">Scan tokens on the go</h3>
+          <p className="text-gray-400 mb-6">Use our Telegram bot — paste any contract address, get instant results.</p>
+          <a
+            href="https://t.me/RugRadarAI_bot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#00ff88] text-[#0a0a1a] font-bold rounded-lg hover:bg-[#00cc6a] transition-colors"
+          >
+            <Bot className="w-5 h-5" />
+            Open Telegram Bot
+          </a>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-16 pt-8 border-t border-[#1a2332]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-[#00ff88] font-bold text-lg">RugRadar</span>
+              <span className="text-xs text-gray-600">AI-Powered Meme Token Scanner</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-gray-500">
+              <a href="https://x.com/0xrugradar" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">𝕏 Twitter</a>
+              <a href="https://t.me/RugRadarAI_bot" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Telegram</a>
+              <a href="https://github.com/Rugradar/RugradarAI" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
+            </div>
+          </div>
+          <div className="mt-4 text-center text-xs text-gray-700">
+            <p>Base • BSC • Solana | Data from DexScreener + GoPlus Security</p>
+            <p className="mt-1">© 2026 RugRadar. Scan Before You Ape 🔍</p>
+          </div>
         </footer>
       </main>
     </div>
