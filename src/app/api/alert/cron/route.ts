@@ -10,9 +10,12 @@ const CRON_SECRET = process.env.CRON_SECRET || "";
 export const maxDuration = 60; // Allow up to 60s for scanning
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret (Vercel sends this header for cron jobs)
+  // Verify: allow Vercel cron (sends x-vercel-cron header) or manual with CRON_SECRET
+  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
   const authHeader = req.headers.get("authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  const isAuthed = CRON_SECRET && authHeader === `Bearer ${CRON_SECRET}`;
+  
+  if (!isVercelCron && !isAuthed) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
