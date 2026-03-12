@@ -9,10 +9,8 @@ let kv: any = null;
 async function getKV() {
   if (kv !== undefined && kv !== null) return kv;
   try {
-    // Dynamic import — only works if @vercel/kv is installed
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = await (Function('return import("@vercel/kv")')() as Promise<any>);
-    kv = mod.kv;
+    const { kv: kvClient } = await import("@vercel/kv");
+    kv = kvClient;
     return kv;
   } catch {
     kv = null;
