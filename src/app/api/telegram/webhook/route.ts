@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchTokenByAddress, analyzeToken } from "@/lib/api";
 import { TokenAnalysis } from "@/types/token";
+import { addSubscriber, removeSubscriber, isSubscribed } from "@/lib/subscribers";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
         "• 💰 Tax analysis\n" +
         "• 🐋 Whale concentration\n\n" +
         "Supported chains: *Base • BSC • Solana*\n\n" +
+        "🚨 *NEW:* Use /subscribe for auto honeypot alerts!\n\n" +
         "Just paste any token address to start! 👇"
       );
       return NextResponse.json({ ok: true });
@@ -42,9 +44,64 @@ export async function POST(req: NextRequest) {
       await sendMessage(chatId,
         "📖 *Commands:*\n\n" +
         "• Paste a contract address → instant scan\n" +
+        "• /subscribe — Get auto-alerts for honeypots 🚨\n" +
+        "• /unsubscribe — Stop alerts\n" +
+        "• /status — Check subscription status\n" +
         "• /start — Welcome message\n" +
         "• /help — This message\n\n" +
         "🌐 Web app: rugradar-ai.vercel.app"
+      );
+      return NextResponse.json({ ok: true });
+    }
+
+    // Handle /subscribe command
+    if (text === "/subscribe") {
+      const already = await isSubscribed(chatId);
+      if (already) {
+        await sendMessage(chatId, "✅ You're already subscribed to honeypot alerts!\n\nYou'll get notified when we detect dangerous tokens.");
+      } else {
+        const ok = await addSubscriber(chatId);
+        if (ok) {
+          await sendMessage(chatId,
+            "🚨 *Subscribed to Honeypot Alerts!*\n\n" +
+            "You'll receive automatic alerts when RugRadar detects:\n" +
+            "• 🍯 Honeypot tokens\n" +
+            "• 🔴 Critical risk tokens (score 50+)\n\n" +
+            "Scanning Base, BSC & Solana every 5 minutes.\n\n" +
+            "Use /unsubscribe to stop."
+          );
+        } else {
+          await sendMessage(chatId,
+            "⚠️ Subscription system is not fully set up yet.\n\n" +
+            "Ask the admin to configure Vercel KV or add your chat ID to ALERT\\_CHAT\\_IDS.\n\n" +
+            "Your chat ID: `" + chatId + "`"
+          );
+        }
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    // Handle /unsubscribe command
+    if (text === "/unsubscribe") {
+      const ok = await removeSubscriber(chatId);
+      if (ok) {
+        await sendMessage(chatId, "🔕 Unsubscribed from honeypot alerts.\n\nUse /subscribe to re-enable.");
+      } else {
+        await sendMessage(chatId, "⚠️ Could not unsubscribe. Contact admin.");
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    // Handle /status command
+    if (text === "/status") {
+      const subscribed = await isSubscribed(chatId);
+      await sendMessage(chatId,
+        "📊 *RugRadar Status*\n\n" +
+        `🔔 Alerts: ${subscribed ? "ON ✅" : "OFF ❌"}\n` +
+        `💬 Chat ID: \`${chatId}\`\n\n` +
+        (subscribed
+          ? "You'll get notified when dangerous tokens are detected."
+          : "Use /subscribe to enable honeypot alerts.")
       );
       return NextResponse.json({ ok: true });
     }
