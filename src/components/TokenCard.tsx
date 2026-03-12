@@ -122,9 +122,13 @@ export default function TokenCard({ token }: { token: TokenAnalysis }) {
 }
 
 function getTradeUrl(token: TokenAnalysis): string {
+  const jupRef = process.env.NEXT_PUBLIC_JUP_REFERRAL;
+  const jupFee = process.env.NEXT_PUBLIC_JUP_FEE_BPS || "50";
   switch (token.chain) {
-    case "solana":
-      return `https://jup.ag/swap/SOL-${token.address}`;
+    case "solana": {
+      const base = `https://jup.ag/swap/SOL-${token.address}`;
+      return jupRef ? `${base}?referral=${jupRef}&feeBps=${jupFee}` : base;
+    }
     case "base":
       return `https://app.uniswap.org/swap?chain=base&outputCurrency=${token.address}`;
     case "bsc":

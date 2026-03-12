@@ -91,7 +91,7 @@ export default function TradePage() {
               </div>
             </div>
             <iframe
-              src={`https://jup.ag/swap/SOL${tokenAddress ? `-${tokenAddress}` : ""}`}
+              src={`https://jup.ag/swap/SOL${tokenAddress ? `-${tokenAddress}` : ""}${process.env.NEXT_PUBLIC_JUP_REFERRAL ? `?referral=${process.env.NEXT_PUBLIC_JUP_REFERRAL}&feeBps=${process.env.NEXT_PUBLIC_JUP_FEE_BPS || "50"}` : ""}`}
               width="100%"
               height="600"
               style={{ border: "none", background: "#131a27" }}
